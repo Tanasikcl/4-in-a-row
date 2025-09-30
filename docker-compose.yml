@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: 4inarow
+      POSTGRES_PASSWORD: 4inarow
+      POSTGRES_DB: 4inarow
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redpanda:
+    image: redpandadata/redpanda:latest
+    command:
+      [
+        "redpanda", "start",
+        "--overprovisioned",
+        "--smp", "1",
+        "--memory", "1G",
+        "--reserve-memory", "0M",
+        "--node-id", "0",
+        # TWO LISTENERS:
+        "--kafka-addr", "PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092",
+        "--advertise-kafka-addr", "PLAINTEXT://redpanda:9092,OUTSIDE://localhost:19092"
+      ]
+    ports:
+      - "9092:9092"    # internal listener exposed (optional)
+      - "19092:19092"  # external listener for host apps/tools
+
+  # OPTIONAL: run backend in Docker (otherwise, run it on host)
+  backend:
+    build: ./backend
+    environment:
+      - PORT=8081
+      - POSTGRES_DSN=postgres://4inarow:4inarow@postgres:5432/4inarow?sslmode=disable
+      - KAFKA_BROKERS=redpanda:9092
+      - KAFKA_TOPIC=game-analytics
+      - RECONNECT_GRACE_SECONDS=30
+    depends_on:
+      - postgres
+      - redpanda
+    ports:
+      - "8081:8081"
+
+  # Your analytics consumer (logs/aggregates Kafka events)
+  consumer:
+    build: ./analytics-consumer
+    environment:
+      - KAFKA_BROKERS=redpanda:9092   # inside Docker network use 'redpanda:9092'
+      - KAFKA_TOPIC=game-analytics
+    depends_on:
+      - redpanda
+
+volumes:
+  pgdata: {}

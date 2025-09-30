@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS games (
+  id UUID PRIMARY KEY,
+  p1 TEXT NOT NULL,
+  p2 TEXT NOT NULL,
+  winner TEXT,
+  is_draw BOOLEAN NOT NULL DEFAULT FALSE,
+  started_at TIMESTAMPTZ NOT NULL,
+  ended_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS moves (
+  id BIGSERIAL PRIMARY KEY,
+  game_id UUID NOT NULL,
+  move_no INT NOT NULL,
+  username TEXT NOT NULL,
+  col INT NOT NULL,
+  row INT NOT NULL,
+  made_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Leaderboard materialized view (optional for local dev)
+CREATE MATERIALIZED VIEW IF NOT EXISTS leaderboard AS
+SELECT winner AS username, COUNT(*) AS wins
+FROM games
+WHERE winner IS NOT NULL
+GROUP BY winner
+WITH NO DATA;
