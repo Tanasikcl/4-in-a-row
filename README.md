@@ -8,7 +8,10 @@ A real-time **Connect Four** with:
 - Simple React frontend
 - **Kafka analytics** (bonus) via a tiny consumer (`analytics-consumer2`)
 
+
 ## Live Links
+- Click on Frontend url for the live link, that has the complete game linked to the backend 
+- To play **multiplayer** open the live link of frontend to access the game in two tabs and enter players in both and then you can begin the game
 - **Frontend:** https://four-in-a-row-go.netlify.app/
 - **Backend:**  https://four-in-a-row-y4xi.onrender.com  
   
