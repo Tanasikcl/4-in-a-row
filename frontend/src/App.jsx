@@ -3,8 +3,18 @@ import Board from './Board'
 import './styles.css'
 
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081'
-const WS_BASE  = import.meta.env.VITE_WS_BASE  || 'ws://localhost:8081'
+const API_BASE =
+  import.meta.env.VITE_API_BASE
+  || (window.location.hostname.includes("netlify.app")
+      ? "https://four-in-a-row-y4xi.onrender.com"
+      : "http://localhost:8081");
+
+const WS_BASE =
+  import.meta.env.VITE_WS_BASE
+  || (window.location.hostname.includes("netlify.app")
+      ? "wss://four-in-a-row-y4xi.onrender.com"
+      : "ws://localhost:8081");
+
 
 
 export default function App(){
